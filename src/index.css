@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #FF9900;
+  --color-primary-dark: #CC7A00;
+  --color-secondary: #3D85C6;
+  --color-bg: #F7F7F8;
+  --color-surface: #FFFFFF;
+  --color-border: #E0E0E0;
+  --color-text: #1A1A1A;
+  --color-text-muted: #6B7280;
+  --color-success: #34A853;
+  --color-warning: #FBBC04;
+  --color-danger: #EA4335;
+}
+
+@theme inline {
+  --color-brand-primary: var(--color-primary);
+  --color-brand-primary-dark: var(--color-primary-dark);
+  --color-brand-secondary: var(--color-secondary);
+  --color-brand-bg: var(--color-bg);
+  --color-brand-surface: var(--color-surface);
+  --color-brand-border: var(--color-border);
+  --color-brand-text: var(--color-text);
+  --color-brand-text-muted: var(--color-text-muted);
+  --color-brand-success: var(--color-success);
+  --color-brand-warning: var(--color-warning);
+  --color-brand-danger: var(--color-danger);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+@keyframes loaderbar {
+  0% {
+    transform: translateX(-100%);
+  }
+  60% {
+    transform: translateX(20%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes swatchIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth color transitions whenever the active palette changes */
+body,
+button,
+input,
+select,
+textarea,
+a,
+[class*='bg-[var'],
+[class*='text-[var'],
+[class*='border-[var'] {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
