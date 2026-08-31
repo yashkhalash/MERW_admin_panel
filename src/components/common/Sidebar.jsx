@@ -7,7 +7,7 @@ import { navItems } from './navItems'
 import { LogOut, X } from 'lucide-react'
 
 function SidebarContent({ onNavigate, onCloseClick }) {
-  const { logoDataUrl, generalSettings } = usePlatformSettings()
+  const { logoUrl, generalSettings } = usePlatformSettings()
   const navigate = useNavigate()
   const { showToast } = useToast()
   const [loggingOut, setLoggingOut] = useState(false)
@@ -23,13 +23,7 @@ function SidebarContent({ onNavigate, onCloseClick }) {
   return (
     <>
       <div className="h-16 flex items-center gap-2 px-5 border-b border-[var(--color-border)] shrink-0">
-        {logoDataUrl ? (
-          <img src={logoDataUrl} alt="Platform logo" className="w-8 h-8 rounded-md object-cover shrink-0" />
-        ) : (
-          <div className="w-8 h-8 rounded-md bg-[var(--color-primary)] flex items-center justify-center text-white font-bold text-sm shrink-0">
-            M
-          </div>
-        )}
+        <img src={logoUrl} alt="Platform logo" className="w-8 h-8 rounded-md object-cover shrink-0" />
         <span className="font-semibold text-[var(--color-text)] text-sm leading-tight truncate flex-1">
           {generalSettings.platformName}
         </span>

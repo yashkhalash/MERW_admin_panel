@@ -14,17 +14,20 @@ export const LOADER_STYLES = [
 
 export const CURRENCY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€' }
 
+// Default platform logo, used for the sidebar, browser tab favicon, and the
+// auth pages (Login/Forgot/Reset Password) until an admin uploads a custom one.
+export const DEFAULT_LOGO_URL = '/logo.png'
+
 const PlatformSettingsContext = createContext(null)
 
-function applyFavicon(logoDataUrl) {
-  if (!logoDataUrl) return
+function applyFavicon(url) {
   let link = document.querySelector("link[rel~='icon']")
   if (!link) {
     link = document.createElement('link')
     link.rel = 'icon'
     document.head.appendChild(link)
   }
-  link.href = logoDataUrl
+  link.href = url
 }
 
 function loadGeneralSettings() {
@@ -44,7 +47,7 @@ export function PlatformSettingsProvider({ children }) {
   const [generalSettings, setGeneralSettingsState] = useState(loadGeneralSettings)
 
   useEffect(() => {
-    if (logoDataUrl) applyFavicon(logoDataUrl)
+    applyFavicon(logoDataUrl || DEFAULT_LOGO_URL)
   }, [logoDataUrl])
 
   useEffect(() => {
@@ -79,6 +82,7 @@ export function PlatformSettingsProvider({ children }) {
     <PlatformSettingsContext.Provider
       value={{
         logoDataUrl,
+        logoUrl: logoDataUrl || DEFAULT_LOGO_URL,
         setLogo,
         loaderStyle,
         setLoaderStyle,

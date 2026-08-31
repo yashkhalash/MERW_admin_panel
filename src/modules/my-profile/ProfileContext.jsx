@@ -4,6 +4,9 @@ import { adminProfile as initialProfile } from '../../mock-data/profile'
 
 const STORAGE_KEY = 'merw-admin-profile'
 
+// Default avatar shown until the admin uploads their own photo.
+export const DEFAULT_AVATAR_URL = '/user.png'
+
 const ProfileContext = createContext(null)
 
 function loadProfile() {
@@ -42,8 +45,12 @@ export function ProfileProvider({ children }) {
     })
   }
 
+  const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR_URL
+
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile, setAvatar }}>{children}</ProfileContext.Provider>
+    <ProfileContext.Provider value={{ profile, updateProfile, setAvatar, avatarUrl }}>
+      {children}
+    </ProfileContext.Provider>
   )
 }
 

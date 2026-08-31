@@ -32,9 +32,9 @@ export const PRESET_XY = {
 }
 
 const DEFAULT_XY = {
-  desktop: PRESET_XY['top-right'],
-  tablet: PRESET_XY['top-right'],
-  mobile: PRESET_XY['bottom-center'],
+  desktop: PRESET_XY['top-center'],
+  tablet: PRESET_XY['top-center'],
+  mobile: PRESET_XY['top-center'],
 }
 
 export function clampXY({ x, y }) {

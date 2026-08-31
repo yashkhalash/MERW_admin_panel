@@ -2,19 +2,13 @@ import { usePlatformSettings } from '../../theme/PlatformSettingsContext'
 
 // Full-screen centered card layout shared by Login, Forgot Password, and Reset Password.
 export default function AuthLayout({ title, subtitle, children, footer }) {
-  const { logoDataUrl, generalSettings } = usePlatformSettings()
+  const { logoUrl, generalSettings } = usePlatformSettings()
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] px-4 py-10">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          {logoDataUrl ? (
-            <img src={logoDataUrl} alt="Platform logo" className="w-12 h-12 rounded-lg object-cover mb-3" />
-          ) : (
-            <div className="w-12 h-12 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-bold text-xl mb-3">
-              M
-            </div>
-          )}
+          <img src={logoUrl} alt="Platform logo" className="w-12 h-12 rounded-lg object-cover mb-3" />
           <span className="font-semibold text-[var(--color-text)] text-center">
             {generalSettings.platformName}
           </span>

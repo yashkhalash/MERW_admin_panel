@@ -9,21 +9,12 @@ import GlobalSearch from './GlobalSearch'
 import { notifications as mockNotifications } from '../../mock-data/notifications'
 // TODO: replace mock data with real API call to /api/v1/notifications
 
-function getInitials(name) {
-  return name
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 export default function Topbar({ onMenuClick = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notifications, setNotifications] = useState(mockNotifications)
-  const { profile } = useProfile()
+  const { profile, avatarUrl } = useProfile()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -84,17 +75,7 @@ export default function Topbar({ onMenuClick = () => {} }) {
             onClick={() => setMenuOpen((v) => !v)}
             className="flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-md hover:bg-[var(--color-bg)]"
           >
-            {profile.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name}
-                className="w-8 h-8 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-[var(--color-secondary)] text-white flex items-center justify-center text-xs font-semibold shrink-0">
-                {getInitials(profile.name)}
-              </div>
-            )}
+            <img src={avatarUrl} alt={profile.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
             <span className="text-sm font-medium text-[var(--color-text)] hidden sm:inline">
               {profile.name}
             </span>

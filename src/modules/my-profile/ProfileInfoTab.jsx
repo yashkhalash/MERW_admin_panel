@@ -7,17 +7,8 @@ import { useToast } from '../../components/common/ToastContext'
 
 const MAX_AVATAR_SIZE_MB = 2
 
-function getInitials(name) {
-  return name
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-}
-
 export default function ProfileInfoTab() {
-  const { profile, updateProfile, setAvatar } = useProfile()
+  const { profile, updateProfile, setAvatar, avatarUrl } = useProfile()
   const { showToast } = useToast()
   const [editing, setEditing] = useState(false)
   const fileInputRef = useRef(null)
@@ -77,17 +68,11 @@ export default function ProfileInfoTab() {
       {/* Left: avatar + summary card */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 flex flex-col items-center text-center">
         <div className="relative mb-4">
-          {profile.avatarUrl ? (
-            <img
-              src={profile.avatarUrl}
-              alt={profile.name}
-              className="w-24 h-24 rounded-full object-cover border-4 border-[var(--color-bg)] shadow-sm"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-[var(--color-secondary)] text-white flex items-center justify-center text-2xl font-semibold border-4 border-[var(--color-bg)] shadow-sm">
-              {getInitials(profile.name)}
-            </div>
-          )}
+          <img
+            src={avatarUrl}
+            alt={profile.name}
+            className="w-24 h-24 rounded-full object-cover border-4 border-[var(--color-bg)] shadow-sm"
+          />
           <button
             onClick={() => fileInputRef.current?.click()}
             className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center border-2 border-[var(--color-surface)] hover:opacity-90"
