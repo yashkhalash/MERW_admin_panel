@@ -9,6 +9,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 import { products as mockProducts } from '../../mock-data/products'
 // TODO: replace mock data with real API call to /api/v1/products/moderation-queue
@@ -30,6 +31,7 @@ export default function ModerationQueuePage() {
   const [products, setProducts] = useState(mockProducts)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ status: 'Pending', category: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [confirmTarget, setConfirmTarget] = useState(null) // { product, action: 'approve'|'reject' }
 
   const categories = useMemo(() => [...new Set(mockProducts.map((p) => p.category))], [])
@@ -42,9 +44,11 @@ export default function ModerationQueuePage() {
         p.sellerName.toLowerCase().includes(search.toLowerCase())
       const matchesStatus = !filters.status || p.status === filters.status
       const matchesCategory = !filters.category || p.category === filters.category
-      return matchesSearch && matchesStatus && matchesCategory
+      const matchesStart = !dateRange.start || p.submittedDate >= dateRange.start
+      const matchesEnd = !dateRange.end || p.submittedDate <= dateRange.end
+      return matchesSearch && matchesStatus && matchesCategory && matchesStart && matchesEnd
     })
-  }, [products, search, filters])
+  }, [products, search, filters, dateRange])
 
   const handleConfirmAction = (reason) => {
     const { product, action } = confirmTarget
@@ -115,6 +119,14 @@ export default function ModerationQueuePage() {
     [navigate]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.status && `Status: ${filters.status}`,
+    filters.category && `Category: ${filters.category}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -124,6 +136,8 @@ export default function ModerationQueuePage() {
           <ExportCsvButton
             data={filteredData}
             filename="moderation-queue"
+            title="Content & Product Moderation"
+            filters={activeFilters}
             columns={[
               { label: 'Product Name', accessor: 'name' },
               { label: 'Seller', accessor: 'sellerName' },
@@ -153,6 +167,12 @@ export default function ModerationQueuePage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Submitted date range"
         />
       </div>
 

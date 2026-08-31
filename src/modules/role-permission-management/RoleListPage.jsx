@@ -7,6 +7,7 @@ import RoleFormModal from './RoleFormModal'
 import AssignRoleModal from './AssignRoleModal'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 import { roles as mockRoles } from '../../mock-data/roles'
 // TODO: replace mock data with real API call to /api/v1/roles
@@ -15,12 +16,19 @@ export default function RoleListPage() {
   const { showToast } = useToast()
   const [roles, setRoles] = useState(mockRoles)
   const [search, setSearch] = useState('')
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [formState, setFormState] = useState(null) // { role: null | role }
   const [assignTarget, setAssignTarget] = useState(null) // role
 
   const filteredData = useMemo(
-    () => roles.filter((r) => !search || r.name.toLowerCase().includes(search.toLowerCase())),
-    [roles, search]
+    () =>
+      roles.filter((r) => {
+        const matchesSearch = !search || r.name.toLowerCase().includes(search.toLowerCase())
+        const matchesStart = !dateRange.start || r.createdDate >= dateRange.start
+        const matchesEnd = !dateRange.end || r.createdDate <= dateRange.end
+        return matchesSearch && matchesStart && matchesEnd
+      }),
+    [roles, search, dateRange]
   )
 
   const handleSaveRole = (data) => {
@@ -72,6 +80,12 @@ export default function RoleListPage() {
     []
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -82,6 +96,8 @@ export default function RoleListPage() {
             <ExportCsvButton
               data={filteredData}
               filename="roles"
+              title="Role & Permission Management"
+              filters={activeFilters}
               columns={[
                 { label: 'Role Name', accessor: 'name' },
                 { label: 'Description', accessor: 'description' },
@@ -99,8 +115,14 @@ export default function RoleListPage() {
         }
       />
 
-      <div className="mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <SearchBar value={search} onChange={setSearch} placeholder="Search by role name..." />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Created date range"
+        />
       </div>
 
       <DataTable columns={columns} data={filteredData} pageSize={10} />

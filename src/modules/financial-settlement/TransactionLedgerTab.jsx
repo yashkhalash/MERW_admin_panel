@@ -4,6 +4,7 @@ import SearchBar from '../../components/common/SearchBar'
 import FilterBar from '../../components/common/FilterBar'
 import StatusBadge from '../../components/common/StatusBadge'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { transactionLedger } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/ledger
@@ -12,6 +13,7 @@ export default function TransactionLedgerTab() {
   const symbol = useCurrencySymbol()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ type: '', direction: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
 
   const filteredData = useMemo(() => {
     return transactionLedger.filter((t) => {
@@ -21,9 +23,11 @@ export default function TransactionLedgerTab() {
         t.reference.toLowerCase().includes(search.toLowerCase())
       const matchesType = !filters.type || t.type === filters.type
       const matchesDirection = !filters.direction || t.direction === filters.direction
-      return matchesSearch && matchesType && matchesDirection
+      const matchesStart = !dateRange.start || t.date >= dateRange.start
+      const matchesEnd = !dateRange.end || t.date <= dateRange.end
+      return matchesSearch && matchesType && matchesDirection && matchesStart && matchesEnd
     })
-  }, [search, filters])
+  }, [search, filters, dateRange])
 
   const columns = useMemo(
     () => [
@@ -83,7 +87,21 @@ export default function TransactionLedgerTab() {
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
         />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Transaction date range"
+        />
         <ExportCsvButton
+          title="Transaction Ledger"
+          filters={[
+            search && `Search: "${search}"`,
+            filters.type && `Type: ${filters.type}`,
+            filters.direction && `Direction: ${filters.direction}`,
+            dateRange.start && `From: ${dateRange.start}`,
+            dateRange.end && `To: ${dateRange.end}`,
+          ].filter(Boolean)}
           data={filteredData}
           filename="transaction-ledger"
           columns={[

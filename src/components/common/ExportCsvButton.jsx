@@ -1,17 +1,32 @@
 import { Download } from 'lucide-react'
 import { exportToCsv } from '../../utils/csv'
 import { useToast } from './ToastContext'
+import { usePlatformSettings } from '../../theme/PlatformSettingsContext'
+import { useProfile } from '../../modules/my-profile/ProfileContext'
 
 // Themed CSV export button — uses the active palette's CSS vars, so it matches
 // whatever theme is currently applied. Drop into any list page's PageHeader
 // actions (or toolbar row) alongside its DataTable.
 //
 // Default usage exports a flat `data` array through `columns` ({ label, accessor }).
+// Pass `title` (defaults to the platform name) and `filters` — an array of
+// "Label: value" strings for whatever search/filters are currently active — and
+// they're written as a branded header block above the column row in the CSV.
 // For a page whose export doesn't fit that single-table shape (e.g. several small
 // tables), pass `onGenerate` instead — a function that builds and downloads the CSV
 // itself (see src/utils/csv.js's exportDashboardCsv for an example).
-export default function ExportCsvButton({ data, columns, filename, label = 'Export CSV', onGenerate }) {
+export default function ExportCsvButton({
+  data,
+  columns,
+  filename,
+  label = 'Export CSV',
+  onGenerate,
+  title,
+  filters,
+}) {
   const { showToast } = useToast()
+  const { generalSettings } = usePlatformSettings()
+  const { profile } = useProfile()
 
   const handleExport = () => {
     if (onGenerate) {
@@ -23,7 +38,11 @@ export default function ExportCsvButton({ data, columns, filename, label = 'Expo
       showToast('No data to export.', 'error')
       return
     }
-    exportToCsv(filename, columns, data)
+    exportToCsv(filename, columns, data, {
+      title: `${generalSettings.platformName} — ${title || filename}`,
+      generatedBy: profile.name,
+      filters,
+    })
     showToast(`Exported ${data.length} row${data.length === 1 ? '' : 's'} to CSV.`)
   }
 

@@ -105,7 +105,7 @@ export default function CommissionConfigTab() {
         <p className="text-sm text-[var(--color-text-muted)]">
           Set the platform commission percentage charged per product category.
         </p>
-        <ExportCsvButton
+        <ExportCsvButton title="Commission Config"
           data={config}
           filename="commission-config"
           columns={[

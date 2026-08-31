@@ -7,6 +7,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog'
 import Modal from '../../components/common/Modal'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { useToast } from '../../components/common/ToastContext'
 import { refunds as mockRefunds } from '../../mock-data/financial'
@@ -17,12 +18,19 @@ export default function RefundManagementTab() {
   const { showToast } = useToast()
   const [refunds, setRefunds] = useState(mockRefunds)
   const [filters, setFilters] = useState({ status: 'Pending' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [confirmTarget, setConfirmTarget] = useState(null) // { refund, action }
   const [viewing, setViewing] = useState(null)
 
   const filteredData = useMemo(
-    () => refunds.filter((r) => !filters.status || r.status === filters.status),
-    [refunds, filters]
+    () =>
+      refunds.filter((r) => {
+        const matchesStatus = !filters.status || r.status === filters.status
+        const matchesStart = !dateRange.start || r.requestedDate >= dateRange.start
+        const matchesEnd = !dateRange.end || r.requestedDate <= dateRange.end
+        return matchesStatus && matchesStart && matchesEnd
+      }),
+    [refunds, filters, dateRange]
   )
 
   const handleConfirmAction = (reason) => {
@@ -108,9 +116,21 @@ export default function RefundManagementTab() {
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
         />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Requested date range"
+        />
         <ExportCsvButton
           data={filteredData}
           filename="refunds"
+          title="Refund Management"
+          filters={[
+            filters.status && `Status: ${filters.status}`,
+            dateRange.start && `From: ${dateRange.start}`,
+            dateRange.end && `To: ${dateRange.end}`,
+          ].filter(Boolean)}
           columns={[
             { label: 'Refund ID', accessor: 'id' },
             { label: 'Order ID', accessor: 'orderId' },

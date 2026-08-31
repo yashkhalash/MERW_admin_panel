@@ -9,6 +9,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { useToast } from '../../components/common/ToastContext'
 import { sellers as mockSellers } from '../../mock-data/sellers'
@@ -26,6 +27,7 @@ export default function SellerListPage() {
     category: searchParams.get('category') || '',
     status: searchParams.get('status') || '',
   })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [confirmTarget, setConfirmTarget] = useState(null) // { seller, action: 'approve'|'reject'|'suspend'|'reactivate' }
 
   const categories = useMemo(() => [...new Set(mockSellers.map((s) => s.category))], [])
@@ -39,9 +41,11 @@ export default function SellerListPage() {
       const matchesVerification = !filters.verificationStatus || s.verificationStatus === filters.verificationStatus
       const matchesCategory = !filters.category || s.category === filters.category
       const matchesStatus = !filters.status || s.status === filters.status
-      return matchesSearch && matchesVerification && matchesCategory && matchesStatus
+      const matchesStart = !dateRange.start || s.registeredDate >= dateRange.start
+      const matchesEnd = !dateRange.end || s.registeredDate <= dateRange.end
+      return matchesSearch && matchesVerification && matchesCategory && matchesStatus && matchesStart && matchesEnd
     })
-  }, [sellers, search, filters])
+  }, [sellers, search, filters, dateRange])
 
   const handleConfirmAction = (reason) => {
     const { seller, action } = confirmTarget
@@ -171,6 +175,14 @@ export default function SellerListPage() {
     },
   }[confirmTarget?.action]
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.verificationStatus && `Verification: ${filters.verificationStatus}`,
+    filters.category && `Category: ${filters.category}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -180,6 +192,8 @@ export default function SellerListPage() {
           <ExportCsvButton
             data={filteredData}
             filename="sellers"
+            title="Seller Management"
+            filters={activeFilters}
             columns={[
               { label: 'Store Name', accessor: 'storeName' },
               { label: 'Owner', accessor: 'owner' },
@@ -215,6 +229,12 @@ export default function SellerListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Registered date range"
         />
       </div>
 

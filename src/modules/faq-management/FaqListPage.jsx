@@ -11,6 +11,7 @@ import FaqFormModal from './FaqFormModal'
 import { useFaqs } from './FaqsContext'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 import { FAQ_CATEGORIES } from '../../mock-data/faqs'
 // TODO: replace mock data with real API call to /api/v1/faqs
@@ -21,6 +22,7 @@ export default function FaqListPage() {
   const { showToast } = useToast()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ category: '', status: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [formState, setFormState] = useState(null) // { faq: null | faq }
   const [deleteTarget, setDeleteTarget] = useState(null)
 
@@ -29,9 +31,11 @@ export default function FaqListPage() {
       const matchesSearch = !search || f.question.toLowerCase().includes(search.toLowerCase())
       const matchesCategory = !filters.category || f.category === filters.category
       const matchesStatus = !filters.status || f.status === filters.status
-      return matchesSearch && matchesCategory && matchesStatus
+      const matchesStart = !dateRange.start || f.updatedDate >= dateRange.start
+      const matchesEnd = !dateRange.end || f.updatedDate <= dateRange.end
+      return matchesSearch && matchesCategory && matchesStatus && matchesStart && matchesEnd
     })
-  }, [faqs, search, filters])
+  }, [faqs, search, filters, dateRange])
 
   const handleSave = (data) => {
     if (formState.faq) {
@@ -79,6 +83,14 @@ export default function FaqListPage() {
     [navigate]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.category && `Category: ${filters.category}`,
+    filters.status && `Status: ${filters.status}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -89,6 +101,8 @@ export default function FaqListPage() {
             <ExportCsvButton
               data={filteredData}
               filename="faqs"
+              title="FAQ Management"
+              filters={activeFilters}
               columns={[
                 { label: 'Question', accessor: 'question' },
                 { label: 'Category', accessor: 'category' },
@@ -123,6 +137,12 @@ export default function FaqListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Last updated range"
         />
       </div>
 

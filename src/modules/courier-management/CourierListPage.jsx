@@ -128,6 +128,12 @@ export default function CourierListPage() {
     [navigate]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.zone && `Zone: ${filters.zone}`,
+    filters.status && `Status: ${filters.status}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -138,6 +144,8 @@ export default function CourierListPage() {
             <ExportCsvButton
               data={filteredData}
               filename="couriers"
+              title="Courier Management"
+              filters={activeFilters}
               columns={[
                 { label: 'Name', accessor: 'name' },
                 { label: 'Employee ID', accessor: 'employeeId' },

@@ -63,7 +63,7 @@ export default function SalesReportsTab() {
       </div>
 
       <div className="flex justify-end">
-        <ExportCsvButton
+        <ExportCsvButton title="Sales Reports"
           data={salesByCategory}
           filename="sales-by-category"
           columns={[

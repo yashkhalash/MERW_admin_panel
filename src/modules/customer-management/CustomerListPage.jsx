@@ -9,6 +9,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 import { customers as mockCustomers } from '../../mock-data/customers'
 // TODO: replace mock data with real API call to /api/v1/customers
@@ -19,6 +20,7 @@ export default function CustomerListPage() {
   const [customers, setCustomers] = useState(mockCustomers)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ status: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [confirmTarget, setConfirmTarget] = useState(null) // { customer, action: 'suspend' | 'reactivate' }
 
   const filteredData = useMemo(() => {
@@ -29,9 +31,11 @@ export default function CustomerListPage() {
         c.email.toLowerCase().includes(search.toLowerCase()) ||
         c.mobile.includes(search)
       const matchesStatus = !filters.status || c.status === filters.status
-      return matchesSearch && matchesStatus
+      const matchesStart = !dateRange.start || c.registeredDate >= dateRange.start
+      const matchesEnd = !dateRange.end || c.registeredDate <= dateRange.end
+      return matchesSearch && matchesStatus && matchesStart && matchesEnd
     })
-  }, [customers, search, filters])
+  }, [customers, search, filters, dateRange])
 
   const handleConfirmAction = (reason) => {
     const { customer, action } = confirmTarget
@@ -102,6 +106,13 @@ export default function CustomerListPage() {
     [navigate]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.status && `Status: ${filters.status}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -111,6 +122,8 @@ export default function CustomerListPage() {
           <ExportCsvButton
             data={filteredData}
             filename="customers"
+            title="Customer Management"
+            filters={activeFilters}
             columns={[
               { label: 'Name', accessor: 'name' },
               { label: 'Mobile', accessor: 'mobile' },
@@ -138,6 +151,12 @@ export default function CustomerListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Registered date range"
         />
       </div>
 

@@ -10,6 +10,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { useCmsPages } from './CmsPagesContext'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 // TODO: replace mock data with real API call to /api/v1/cms/pages
 
@@ -19,15 +20,18 @@ export default function CmsListPage() {
   const { showToast } = useToast()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ status: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   const filteredData = useMemo(() => {
     return pages.filter((p) => {
       const matchesSearch = !search || p.title.toLowerCase().includes(search.toLowerCase())
       const matchesStatus = !filters.status || p.status === filters.status
-      return matchesSearch && matchesStatus
+      const matchesStart = !dateRange.start || p.updatedDate >= dateRange.start
+      const matchesEnd = !dateRange.end || p.updatedDate <= dateRange.end
+      return matchesSearch && matchesStatus && matchesStart && matchesEnd
     })
-  }, [pages, search, filters])
+  }, [pages, search, filters, dateRange])
 
   const handleDelete = () => {
     deletePage(deleteTarget.id)
@@ -65,6 +69,13 @@ export default function CmsListPage() {
     [navigate]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.status && `Status: ${filters.status}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -75,6 +86,8 @@ export default function CmsListPage() {
             <ExportCsvButton
               data={filteredData}
               filename="cms-pages"
+              title="CMS Management"
+              filters={activeFilters}
               columns={[
                 { label: 'Title', accessor: 'title' },
                 { label: 'Slug', accessor: 'slug' },
@@ -105,6 +118,12 @@ export default function CmsListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Last updated range"
         />
       </div>
 

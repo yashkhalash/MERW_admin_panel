@@ -14,20 +14,25 @@ import DataTable from '../../components/common/DataTable'
 import SearchBar from '../../components/common/SearchBar'
 import FilterBar from '../../components/common/FilterBar'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { userActivityTrend, userActivityLog } from '../../mock-data/reports'
 // TODO: replace mock data with real API call to /api/v1/reports/user-activity
 
 export default function UserActivityTab() {
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ role: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
 
   const filteredLog = useMemo(() => {
     return userActivityLog.filter((a) => {
       const matchesSearch = !search || a.user.toLowerCase().includes(search.toLowerCase())
       const matchesRole = !filters.role || a.role === filters.role
-      return matchesSearch && matchesRole
+      const activityDate = a.timestamp.slice(0, 10)
+      const matchesStart = !dateRange.start || activityDate >= dateRange.start
+      const matchesEnd = !dateRange.end || activityDate <= dateRange.end
+      return matchesSearch && matchesRole && matchesStart && matchesEnd
     })
-  }, [search, filters])
+  }, [search, filters, dateRange])
 
   const columns = useMemo(
     () => [
@@ -71,7 +76,20 @@ export default function UserActivityTab() {
             values={filters}
             onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
           />
+          <DateRangePicker
+            startDate={dateRange.start}
+            endDate={dateRange.end}
+            onChange={setDateRange}
+            placeholder="Activity date range"
+          />
           <ExportCsvButton
+            title="User Activity"
+            filters={[
+              search && `Search: "${search}"`,
+              filters.role && `Role: ${filters.role}`,
+              dateRange.start && `From: ${dateRange.start}`,
+              dateRange.end && `To: ${dateRange.end}`,
+            ].filter(Boolean)}
             data={filteredLog}
             filename="user-activity"
             columns={[

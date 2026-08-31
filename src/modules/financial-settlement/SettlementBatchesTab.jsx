@@ -6,6 +6,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { settlementBatches } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/settlement-batches
@@ -13,11 +14,18 @@ import { settlementBatches } from '../../mock-data/financial'
 export default function SettlementBatchesTab() {
   const symbol = useCurrencySymbol()
   const [filters, setFilters] = useState({ status: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [viewing, setViewing] = useState(null)
 
   const filteredData = useMemo(
-    () => settlementBatches.filter((b) => !filters.status || b.status === filters.status),
-    [filters]
+    () =>
+      settlementBatches.filter((b) => {
+        const matchesStatus = !filters.status || b.status === filters.status
+        const matchesStart = !dateRange.start || b.batchDate >= dateRange.start
+        const matchesEnd = !dateRange.end || b.batchDate <= dateRange.end
+        return matchesStatus && matchesStart && matchesEnd
+      }),
+    [filters, dateRange]
   )
 
   const columns = useMemo(
@@ -61,9 +69,21 @@ export default function SettlementBatchesTab() {
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
         />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Batch date range"
+        />
         <ExportCsvButton
           data={filteredData}
           filename="settlement-batches"
+          title="Settlement Batches"
+          filters={[
+            filters.status && `Status: ${filters.status}`,
+            dateRange.start && `From: ${dateRange.start}`,
+            dateRange.end && `To: ${dateRange.end}`,
+          ].filter(Boolean)}
           columns={[
             { label: 'Batch ID', accessor: 'id' },
             { label: 'Batch Date', accessor: 'batchDate' },

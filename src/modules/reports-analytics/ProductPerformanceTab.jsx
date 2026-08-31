@@ -55,6 +55,8 @@ export default function ProductPerformanceTab() {
           <ExportCsvButton
             data={filteredData}
             filename="product-performance"
+            title="Product Performance"
+            filters={[search && `Search: "${search}"`].filter(Boolean)}
             columns={[
               { label: 'Product Name', accessor: 'name' },
               { label: 'Category', accessor: 'category' },

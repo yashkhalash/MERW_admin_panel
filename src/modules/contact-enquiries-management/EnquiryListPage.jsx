@@ -9,6 +9,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import EnquiryViewModal from './EnquiryViewModal'
 import IconActionButton from '../../components/common/IconActionButton'
 import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useToast } from '../../components/common/ToastContext'
 import { enquiries as mockEnquiries } from '../../mock-data/enquiries'
 // TODO: replace mock data with real API call to /api/v1/enquiries
@@ -19,6 +20,7 @@ export default function EnquiryListPage() {
   const [enquiries, setEnquiries] = useState(mockEnquiries)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ status: searchParams.get('status') || '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [viewing, setViewing] = useState(null)
 
   const filteredData = useMemo(() => {
@@ -29,9 +31,11 @@ export default function EnquiryListPage() {
         e.subject.toLowerCase().includes(search.toLowerCase()) ||
         e.email.toLowerCase().includes(search.toLowerCase())
       const matchesStatus = !filters.status || e.status === filters.status
-      return matchesSearch && matchesStatus
+      const matchesStart = !dateRange.start || e.submittedDate >= dateRange.start
+      const matchesEnd = !dateRange.end || e.submittedDate <= dateRange.end
+      return matchesSearch && matchesStatus && matchesStart && matchesEnd
     })
-  }, [enquiries, search, filters])
+  }, [enquiries, search, filters, dateRange])
 
   const handleStatusChange = (id, status) => {
     setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, status } : e)))
@@ -61,6 +65,13 @@ export default function EnquiryListPage() {
     []
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.status && `Status: ${filters.status}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -70,6 +81,8 @@ export default function EnquiryListPage() {
           <ExportCsvButton
             data={filteredData}
             filename="enquiries"
+            title="Contact Enquiries Management"
+            filters={activeFilters}
             columns={[
               { label: 'Name', accessor: 'name' },
               { label: 'Subject', accessor: 'subject' },
@@ -93,6 +106,12 @@ export default function EnquiryListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Submitted date range"
         />
       </div>
 

@@ -1,0 +1,35 @@
+import {
+  LayoutDashboard,
+  Users,
+  Store,
+  Truck,
+  ShoppingCart,
+  ShieldCheck,
+  Landmark,
+  BarChart3,
+  Settings,
+  KeyRound,
+  FileText,
+  HelpCircle,
+  Mail,
+  UserCircle,
+} from 'lucide-react'
+
+// Sidebar navigation items — shared with GlobalSearch.jsx so page names are searchable too.
+export const navItems = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/customers', label: 'Customer Management', icon: Users },
+  { to: '/sellers', label: 'Seller Management', icon: Store },
+  { to: '/couriers', label: 'Courier Management', icon: Truck },
+  { to: '/orders', label: 'Order Management', icon: ShoppingCart },
+  { to: '/moderation', label: 'Content Moderation', icon: ShieldCheck },
+  { to: '/financial', label: 'Financial & Settlement', icon: Landmark },
+  { to: '/reports', label: 'Reports & Analytics', icon: BarChart3 },
+  { to: '/platform-config', label: 'Platform Configuration', icon: Settings },
+  { to: '/roles', label: 'Role & Permission', icon: KeyRound },
+  { to: '/cms', label: 'CMS Management', icon: FileText },
+  { to: '/faqs', label: 'FAQ Management', icon: HelpCircle },
+  { to: '/enquiries', label: 'Contact Enquiries', icon: Mail },
+  { to: '/profile', label: 'My Profile', icon: UserCircle },
+  { to: '/settings', label: 'Settings', icon: Settings },
+]

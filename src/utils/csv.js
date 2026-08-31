@@ -1,6 +1,10 @@
 // Minimal client-side CSV export — no dependency needed for this data size.
 // columns: [{ label, accessor }] where accessor is a key string or (row) => value
-export function exportToCsv(filename, columns, data) {
+// meta (optional): { title, generatedBy, filters: string[] } — rendered as a
+// branded header block above the column row (platform name, export date, and a
+// plain-text summary of whatever search/filters were active when exporting —
+// CSV has no styling, so "themed" here means "carries the platform's identity").
+export function exportToCsv(filename, columns, data, meta) {
   const escape = (val) => {
     if (val === null || val === undefined) return ''
     const str = String(val)
@@ -9,10 +13,22 @@ export function exportToCsv(filename, columns, data) {
 
   const getValue = (row, accessor) => (typeof accessor === 'function' ? accessor(row) : row[accessor])
 
-  const lines = [
-    columns.map((c) => escape(c.label)).join(','),
-    ...data.map((row) => columns.map((c) => escape(getValue(row, c.accessor))).join(',')),
-  ]
+  const lines = []
+
+  if (meta) {
+    if (meta.title) lines.push(escape(meta.title))
+    lines.push(escape(`Exported by ${meta.generatedBy || 'Admin'} on ${new Date().toLocaleString()}`))
+    lines.push(escape(`Records: ${data.length}`))
+    if (meta.filters && meta.filters.length > 0) {
+      lines.push(escape(`Filters applied: ${meta.filters.join(' | ')}`))
+    } else {
+      lines.push(escape('Filters applied: None'))
+    }
+    lines.push('')
+  }
+
+  lines.push(columns.map((c) => escape(c.label)).join(','))
+  data.forEach((row) => lines.push(columns.map((c) => escape(getValue(row, c.accessor))).join(',')))
 
   downloadCsv(filename, lines.join('\n'))
 }

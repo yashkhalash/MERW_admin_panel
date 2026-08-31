@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { Search, Users, Store, Truck, ShoppingCart, Mail, HelpCircle, FileText } from 'lucide-react'
+import { Search, Users, Store, Truck, ShoppingCart, Mail, HelpCircle, FileText, Compass } from 'lucide-react'
+import { navItems } from './navItems'
 import { customers } from '../../mock-data/customers'
 import { sellers } from '../../mock-data/sellers'
 import { orders } from '../../mock-data/orders'
@@ -14,6 +15,17 @@ const MAX_PER_GROUP = 4
 
 // Search groups: label/icon for the dropdown, a match test, a display line, and where clicking navigates to.
 const GROUPS = [
+  {
+    key: 'pages',
+    label: 'Pages',
+    icon: Compass,
+    items: navItems,
+    match: (n, q) => n.label.toLowerCase().includes(q),
+    title: (n) => n.label,
+    subtitle: () => 'Go to page',
+    to: (n) => n.to,
+    iconFor: (n) => n.icon,
+  },
   {
     key: 'customers',
     label: 'Customers',
@@ -151,7 +163,7 @@ export default function GlobalSearch() {
           setOpen(true)
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Search customers, orders, sellers..."
+        placeholder="Search pages, customers, orders, sellers..."
         className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
       />
 
@@ -174,7 +186,7 @@ export default function GlobalSearch() {
                     {group.label}
                   </div>
                   {group.matches.map((item, i) => {
-                    const Icon = group.icon
+                    const Icon = group.iconFor?.(item) ?? group.icon
                     return (
                       <button
                         key={i}

@@ -108,6 +108,14 @@ export default function OrderListPage() {
     [navigate, symbol]
   )
 
+  const activeFilters = [
+    search && `Search: "${search}"`,
+    filters.paymentStatus && `Payment: ${filters.paymentStatus}`,
+    filters.fulfilmentStatus && `Fulfilment: ${filters.fulfilmentStatus}`,
+    dateRange.start && `From: ${dateRange.start}`,
+    dateRange.end && `To: ${dateRange.end}`,
+  ].filter(Boolean)
+
   return (
     <div>
       <PageHeader
@@ -117,6 +125,8 @@ export default function OrderListPage() {
           <ExportCsvButton
             data={filteredData}
             filename="orders"
+            title="Order Management"
+            filters={activeFilters}
             columns={[
               { label: 'Order ID', accessor: 'id' },
               { label: 'Date', accessor: 'orderDate' },
