@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, Pencil, Ban, CheckCircle2, Plus } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
@@ -8,6 +8,8 @@ import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import CourierFormModal from './CourierFormModal'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { couriers as mockCouriers } from '../../mock-data/couriers'
 // TODO: replace mock data with real API call to /api/v1/couriers
@@ -15,9 +17,13 @@ import { couriers as mockCouriers } from '../../mock-data/couriers'
 export default function CourierListPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
   const [couriers, setCouriers] = useState(mockCouriers)
   const [search, setSearch] = useState('')
-  const [filters, setFilters] = useState({ zone: '', status: '' })
+  const [filters, setFilters] = useState({
+    zone: searchParams.get('zone') || '',
+    status: searchParams.get('status') || '',
+  })
   const [confirmTarget, setConfirmTarget] = useState(null) // { courier, action: 'suspend'|'reactivate' }
   const [formState, setFormState] = useState(null) // { courier: null | courier }
 
@@ -97,36 +103,22 @@ export default function CourierListPage() {
           const c = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/couriers/${c.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
-              <button
-                onClick={() => setFormState({ courier: c })}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-                title="Edit"
-              >
-                <Pencil size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/couriers/${c.id}`)} />
+              <IconActionButton icon={Pencil} label="Edit" variant="edit" onClick={() => setFormState({ courier: c })} />
               {c.status === 'Active' ? (
-                <button
+                <IconActionButton
+                  icon={Ban}
+                  label="Suspend"
+                  variant="suspend"
                   onClick={() => setConfirmTarget({ courier: c, action: 'suspend' })}
-                  className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                  title="Suspend"
-                >
-                  <Ban size={16} />
-                </button>
+                />
               ) : (
-                <button
+                <IconActionButton
+                  icon={CheckCircle2}
+                  label="Reactivate"
+                  variant="reactivate"
                   onClick={() => setConfirmTarget({ courier: c, action: 'reactivate' })}
-                  className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                  title="Reactivate"
-                >
-                  <CheckCircle2 size={16} />
-                </button>
+                />
               )}
             </div>
           )
@@ -142,12 +134,26 @@ export default function CourierListPage() {
         title="Courier Management"
         subtitle="Manage delivery couriers, zones, and availability"
         actions={
-          <button
-            onClick={() => setFormState({ courier: null })}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
-          >
-            <Plus size={15} /> Add Courier
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton
+              data={filteredData}
+              filename="couriers"
+              columns={[
+                { label: 'Name', accessor: 'name' },
+                { label: 'Employee ID', accessor: 'employeeId' },
+                { label: 'Mobile', accessor: 'mobile' },
+                { label: 'Vehicle Type', accessor: 'vehicleType' },
+                { label: 'Zone', accessor: 'zone' },
+                { label: 'Status', accessor: 'status' },
+              ]}
+            />
+            <button
+              onClick={() => setFormState({ courier: null })}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
+            >
+              <Plus size={15} /> Add Courier
+            </button>
+          </div>
         }
       />
 

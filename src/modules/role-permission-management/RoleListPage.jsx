@@ -5,6 +5,8 @@ import SearchBar from '../../components/common/SearchBar'
 import DataTable from '../../components/common/DataTable'
 import RoleFormModal from './RoleFormModal'
 import AssignRoleModal from './AssignRoleModal'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { roles as mockRoles } from '../../mock-data/roles'
 // TODO: replace mock data with real API call to /api/v1/roles
@@ -60,20 +62,8 @@ export default function RoleListPage() {
           const r = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setFormState({ role: r })}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-                title="Edit"
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                onClick={() => setAssignTarget(r)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="Assign Role"
-              >
-                <UserPlus size={16} />
-              </button>
+              <IconActionButton icon={Pencil} label="Edit" variant="edit" onClick={() => setFormState({ role: r })} />
+              <IconActionButton icon={UserPlus} label="Assign Role" variant="assign" onClick={() => setAssignTarget(r)} />
             </div>
           )
         },
@@ -88,12 +78,24 @@ export default function RoleListPage() {
         title="Role & Permission Management"
         subtitle="Define admin roles and control module-level access"
         actions={
-          <button
-            onClick={() => setFormState({ role: null })}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
-          >
-            <Plus size={15} /> Add Role
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton
+              data={filteredData}
+              filename="roles"
+              columns={[
+                { label: 'Role Name', accessor: 'name' },
+                { label: 'Description', accessor: 'description' },
+                { label: 'Users', accessor: 'usersCount' },
+                { label: 'Created Date', accessor: 'createdDate' },
+              ]}
+            />
+            <button
+              onClick={() => setFormState({ role: null })}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
+            >
+              <Plus size={15} /> Add Role
+            </button>
+          </div>
         }
       />
 

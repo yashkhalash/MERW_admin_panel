@@ -7,6 +7,8 @@ import FilterBar from '../../components/common/FilterBar'
 import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { products as mockProducts } from '../../mock-data/products'
 // TODO: replace mock data with real API call to /api/v1/products/moderation-queue
@@ -88,29 +90,21 @@ export default function ModerationQueuePage() {
           const p = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/moderation/${p.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/moderation/${p.id}`)} />
               {p.status === 'Pending' && (
                 <>
-                  <button
+                  <IconActionButton
+                    icon={Check}
+                    label="Approve"
+                    variant="approve"
                     onClick={() => setConfirmTarget({ product: p, action: 'approve' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                    title="Approve"
-                  >
-                    <Check size={16} />
-                  </button>
-                  <button
+                  />
+                  <IconActionButton
+                    icon={X}
+                    label="Reject"
+                    variant="reject"
                     onClick={() => setConfirmTarget({ product: p, action: 'reject' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                    title="Reject"
-                  >
-                    <X size={16} />
-                  </button>
+                  />
                 </>
               )}
             </div>
@@ -126,6 +120,20 @@ export default function ModerationQueuePage() {
       <PageHeader
         title="Content & Product Moderation"
         subtitle="Review pending product listings before they go live"
+        actions={
+          <ExportCsvButton
+            data={filteredData}
+            filename="moderation-queue"
+            columns={[
+              { label: 'Product Name', accessor: 'name' },
+              { label: 'Seller', accessor: 'sellerName' },
+              { label: 'Category', accessor: 'category' },
+              { label: 'Submitted Date', accessor: 'submittedDate' },
+              { label: 'AI Quality Score', accessor: 'aiQualityScore' },
+              { label: 'Status', accessor: 'status' },
+            ]}
+          />
+        }
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">

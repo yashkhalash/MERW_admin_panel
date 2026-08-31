@@ -9,12 +9,15 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
-import { financialSummary } from '../../mock-data/financial'
+import { useCurrencySymbol, usePlatformSettings } from '../../theme/PlatformSettingsContext'
+import ExportPdfButton from '../../components/common/ExportPdfButton'
+import { generateFinancialReportPdf } from '../../utils/pdfReport'
+import { financialSummary, commissionConfig } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/reports
 
 export default function FinancialReportsTab() {
   const symbol = useCurrencySymbol()
+  const { generalSettings } = usePlatformSettings()
   const currency = (v) => `${symbol}${(v / 1000).toLocaleString(undefined, { maximumFractionDigits: 0 })}K`
   const latest = financialSummary[financialSummary.length - 1]
   const previous = financialSummary[financialSummary.length - 2]
@@ -26,6 +29,19 @@ export default function FinancialReportsTab() {
 
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <ExportPdfButton
+          onGenerate={() =>
+            generateFinancialReportPdf({
+              platformName: generalSettings.platformName,
+              currencySymbol: symbol,
+              summary: financialSummary,
+              commissionConfig,
+            })
+          }
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {cards.map((c) => {
           const delta = (((c.value - c.prev) / c.prev) * 100).toFixed(1)

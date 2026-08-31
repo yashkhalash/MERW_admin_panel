@@ -4,6 +4,8 @@ import { Pencil } from 'lucide-react'
 import DataTable from '../../components/common/DataTable'
 import Modal from '../../components/common/Modal'
 import FormField, { fieldInputClass } from '../../components/common/FormField'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { commissionConfig as mockCommissionConfig } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/commission-config
@@ -80,13 +82,7 @@ export default function CommissionConfigTab() {
         id: 'actions',
         enableSorting: false,
         cell: ({ row }) => (
-          <button
-            onClick={() => setEditing(row.original)}
-            className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-            title="Edit rate"
-          >
-            <Pencil size={16} />
-          </button>
+          <IconActionButton icon={Pencil} label="Edit rate" variant="edit" onClick={() => setEditing(row.original)} />
         ),
       },
     ],
@@ -105,9 +101,20 @@ export default function CommissionConfigTab() {
 
   return (
     <div>
-      <p className="text-sm text-[var(--color-text-muted)] mb-4">
-        Set the platform commission percentage charged per product category.
-      </p>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <p className="text-sm text-[var(--color-text-muted)]">
+          Set the platform commission percentage charged per product category.
+        </p>
+        <ExportCsvButton
+          data={config}
+          filename="commission-config"
+          columns={[
+            { label: 'Category', accessor: 'category' },
+            { label: 'Commission Rate', accessor: (row) => `${row.rate}%` },
+            { label: 'Last Updated', accessor: 'updatedDate' },
+          ]}
+        />
+      </div>
       <DataTable columns={columns} data={config} pageSize={10} />
       <EditCommissionModal
         open={!!editing}

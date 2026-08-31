@@ -3,6 +3,7 @@ import DataTable from '../../components/common/DataTable'
 import SearchBar from '../../components/common/SearchBar'
 import FilterBar from '../../components/common/FilterBar'
 import StatusBadge from '../../components/common/StatusBadge'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { transactionLedger } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/ledger
@@ -81,6 +82,19 @@ export default function TransactionLedgerTab() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <ExportCsvButton
+          data={filteredData}
+          filename="transaction-ledger"
+          columns={[
+            { label: 'Transaction ID', accessor: 'id' },
+            { label: 'Date', accessor: 'date' },
+            { label: 'Type', accessor: 'type' },
+            { label: 'Reference', accessor: 'reference' },
+            { label: 'Amount', accessor: (row) => `${symbol}${row.amount.toLocaleString()}` },
+            { label: 'Direction', accessor: 'direction' },
+            { label: 'Status', accessor: 'status' },
+          ]}
         />
       </div>
 

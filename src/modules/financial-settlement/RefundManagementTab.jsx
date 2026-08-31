@@ -5,6 +5,8 @@ import FilterBar from '../../components/common/FilterBar'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import Modal from '../../components/common/Modal'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { useToast } from '../../components/common/ToastContext'
 import { refunds as mockRefunds } from '../../mock-data/financial'
@@ -67,29 +69,21 @@ export default function RefundManagementTab() {
           const r = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setViewing(r)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => setViewing(r)} />
               {r.status === 'Pending' && (
                 <>
-                  <button
+                  <IconActionButton
+                    icon={Check}
+                    label="Approve"
+                    variant="approve"
                     onClick={() => setConfirmTarget({ refund: r, action: 'approve' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                    title="Approve"
-                  >
-                    <Check size={16} />
-                  </button>
-                  <button
+                  />
+                  <IconActionButton
+                    icon={X}
+                    label="Reject"
+                    variant="reject"
                     onClick={() => setConfirmTarget({ refund: r, action: 'reject' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                    title="Reject"
-                  >
-                    <X size={16} />
-                  </button>
+                  />
                 </>
               )}
             </div>
@@ -102,7 +96,7 @@ export default function RefundManagementTab() {
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         <FilterBar
           filters={[
             {
@@ -113,6 +107,18 @@ export default function RefundManagementTab() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <ExportCsvButton
+          data={filteredData}
+          filename="refunds"
+          columns={[
+            { label: 'Refund ID', accessor: 'id' },
+            { label: 'Order ID', accessor: 'orderId' },
+            { label: 'Customer', accessor: 'customerName' },
+            { label: 'Amount', accessor: (row) => `${symbol}${row.amount.toLocaleString()}` },
+            { label: 'Requested Date', accessor: 'requestedDate' },
+            { label: 'Status', accessor: 'status' },
+          ]}
         />
       </div>
 

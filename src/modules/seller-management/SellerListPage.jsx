@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, Ban, CheckCircle2, Check, X } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
@@ -7,6 +7,8 @@ import FilterBar from '../../components/common/FilterBar'
 import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { useToast } from '../../components/common/ToastContext'
 import { sellers as mockSellers } from '../../mock-data/sellers'
@@ -16,9 +18,14 @@ export default function SellerListPage() {
   const navigate = useNavigate()
   const symbol = useCurrencySymbol()
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
   const [sellers, setSellers] = useState(mockSellers)
   const [search, setSearch] = useState('')
-  const [filters, setFilters] = useState({ verificationStatus: '', category: '' })
+  const [filters, setFilters] = useState({
+    verificationStatus: searchParams.get('verificationStatus') || '',
+    category: searchParams.get('category') || '',
+    status: searchParams.get('status') || '',
+  })
   const [confirmTarget, setConfirmTarget] = useState(null) // { seller, action: 'approve'|'reject'|'suspend'|'reactivate' }
 
   const categories = useMemo(() => [...new Set(mockSellers.map((s) => s.category))], [])
@@ -31,7 +38,8 @@ export default function SellerListPage() {
         s.owner.toLowerCase().includes(search.toLowerCase())
       const matchesVerification = !filters.verificationStatus || s.verificationStatus === filters.verificationStatus
       const matchesCategory = !filters.category || s.category === filters.category
-      return matchesSearch && matchesVerification && matchesCategory
+      const matchesStatus = !filters.status || s.status === filters.status
+      return matchesSearch && matchesVerification && matchesCategory && matchesStatus
     })
   }, [sellers, search, filters])
 
@@ -91,48 +99,38 @@ export default function SellerListPage() {
           const s = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/sellers/${s.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/sellers/${s.id}`)} />
               {s.verificationStatus === 'Pending' && (
                 <>
-                  <button
+                  <IconActionButton
+                    icon={Check}
+                    label="Approve"
+                    variant="approve"
                     onClick={() => setConfirmTarget({ seller: s, action: 'approve' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                    title="Approve"
-                  >
-                    <Check size={16} />
-                  </button>
-                  <button
+                  />
+                  <IconActionButton
+                    icon={X}
+                    label="Reject"
+                    variant="reject"
                     onClick={() => setConfirmTarget({ seller: s, action: 'reject' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                    title="Reject"
-                  >
-                    <X size={16} />
-                  </button>
+                  />
                 </>
               )}
               {s.verificationStatus === 'Verified' &&
                 (s.status === 'Active' ? (
-                  <button
+                  <IconActionButton
+                    icon={Ban}
+                    label="Suspend"
+                    variant="suspend"
                     onClick={() => setConfirmTarget({ seller: s, action: 'suspend' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                    title="Suspend"
-                  >
-                    <Ban size={16} />
-                  </button>
+                  />
                 ) : (
-                  <button
+                  <IconActionButton
+                    icon={CheckCircle2}
+                    label="Reactivate"
+                    variant="reactivate"
                     onClick={() => setConfirmTarget({ seller: s, action: 'reactivate' })}
-                    className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                    title="Reactivate"
-                  >
-                    <CheckCircle2 size={16} />
-                  </button>
+                  />
                 ))}
             </div>
           )
@@ -178,6 +176,21 @@ export default function SellerListPage() {
       <PageHeader
         title="Seller Management"
         subtitle="Review, verify, and manage marketplace sellers"
+        actions={
+          <ExportCsvButton
+            data={filteredData}
+            filename="sellers"
+            columns={[
+              { label: 'Store Name', accessor: 'storeName' },
+              { label: 'Owner', accessor: 'owner' },
+              { label: 'Category', accessor: 'category' },
+              { label: 'Verification Status', accessor: 'verificationStatus' },
+              { label: 'Registered Date', accessor: 'registeredDate' },
+              { label: 'Products', accessor: 'products' },
+              { label: 'Sales', accessor: (row) => `${symbol}${row.sales.toLocaleString()}` },
+            ]}
+          />
+        }
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
@@ -193,6 +206,11 @@ export default function SellerListPage() {
               key: 'category',
               label: 'Category',
               options: categories.map((c) => ({ label: c, value: c })),
+            },
+            {
+              key: 'status',
+              label: 'Status',
+              options: ['Active', 'Suspended', 'Inactive'].map((v) => ({ label: v, value: v })),
             },
           ]}
           values={filters}

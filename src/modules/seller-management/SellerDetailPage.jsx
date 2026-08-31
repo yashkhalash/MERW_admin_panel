@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Ban, CheckCircle2, Check, X, Mail, Phone, FileCheck2 } from 'lucide-react'
+import { Ban, CheckCircle2, Check, X, Mail, Phone, FileCheck2 } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
+import Breadcrumbs from '../../components/common/Breadcrumbs'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
@@ -85,12 +86,13 @@ export default function SellerDetailPage() {
 
   return (
     <div>
-      <button
-        onClick={() => navigate('/sellers')}
-        className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-3"
-      >
-        <ArrowLeft size={15} /> Back to Seller Management
-      </button>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'Seller Management', to: '/sellers' },
+          { label: seller.storeName },
+        ]}
+      />
 
       <PageHeader
         title={seller.storeName}

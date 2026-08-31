@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import PageHeader from '../../components/common/PageHeader'
 import Tabs from '../../components/common/Tabs'
 import CommissionConfigTab from './CommissionConfigTab'
@@ -16,7 +17,9 @@ const TABS = [
 ]
 
 export default function FinancialSettlementPage() {
-  const [activeTab, setActiveTab] = useState('commission')
+  const [searchParams] = useSearchParams()
+  const initialTab = TABS.some((t) => t.key === searchParams.get('tab')) ? searchParams.get('tab') : 'commission'
+  const [activeTab, setActiveTab] = useState(initialTab)
 
   return (
     <div>

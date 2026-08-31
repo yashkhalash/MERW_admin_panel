@@ -4,6 +4,8 @@ import DataTable from '../../components/common/DataTable'
 import FilterBar from '../../components/common/FilterBar'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { settlementBatches } from '../../mock-data/financial'
 // TODO: replace mock data with real API call to /api/v1/financial/settlement-batches
@@ -38,13 +40,7 @@ export default function SettlementBatchesTab() {
         id: 'actions',
         enableSorting: false,
         cell: ({ row }) => (
-          <button
-            onClick={() => setViewing(row.original)}
-            className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-            title="View"
-          >
-            <Eye size={16} />
-          </button>
+          <IconActionButton icon={Eye} label="View" variant="view" onClick={() => setViewing(row.original)} />
         ),
       },
     ],
@@ -53,7 +49,7 @@ export default function SettlementBatchesTab() {
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         <FilterBar
           filters={[
             {
@@ -64,6 +60,17 @@ export default function SettlementBatchesTab() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <ExportCsvButton
+          data={filteredData}
+          filename="settlement-batches"
+          columns={[
+            { label: 'Batch ID', accessor: 'id' },
+            { label: 'Batch Date', accessor: 'batchDate' },
+            { label: 'Sellers', accessor: 'sellersCount' },
+            { label: 'Total Amount', accessor: (row) => `${symbol}${row.totalAmount.toLocaleString()}` },
+            { label: 'Status', accessor: 'status' },
+          ]}
         />
       </div>
 

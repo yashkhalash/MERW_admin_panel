@@ -8,6 +8,8 @@ import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { useCmsPages } from './CmsPagesContext'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 // TODO: replace mock data with real API call to /api/v1/cms/pages
 
@@ -52,27 +54,9 @@ export default function CmsListPage() {
           const p = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/cms/${p.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
-              <button
-                onClick={() => navigate(`/cms/${p.id}/edit`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-                title="Edit"
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                onClick={() => setDeleteTarget(p)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                title="Delete"
-              >
-                <Trash2 size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/cms/${p.id}`)} />
+              <IconActionButton icon={Pencil} label="Edit" variant="edit" onClick={() => navigate(`/cms/${p.id}/edit`)} />
+              <IconActionButton icon={Trash2} label="Delete" variant="delete" onClick={() => setDeleteTarget(p)} />
             </div>
           )
         },
@@ -87,12 +71,25 @@ export default function CmsListPage() {
         title="CMS Management"
         subtitle="Manage static content pages shown on the marketplace"
         actions={
-          <button
-            onClick={() => navigate('/cms/new')}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
-          >
-            <Plus size={15} /> Add Page
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton
+              data={filteredData}
+              filename="cms-pages"
+              columns={[
+                { label: 'Title', accessor: 'title' },
+                { label: 'Slug', accessor: 'slug' },
+                { label: 'Status', accessor: 'status' },
+                { label: 'Last Updated', accessor: 'updatedDate' },
+                { label: 'Author', accessor: 'author' },
+              ]}
+            />
+            <button
+              onClick={() => navigate('/cms/new')}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
+            >
+              <Plus size={15} /> Add Page
+            </button>
+          </div>
         }
       />
 

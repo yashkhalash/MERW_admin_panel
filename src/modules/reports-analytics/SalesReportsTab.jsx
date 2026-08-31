@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import DataTable from '../../components/common/DataTable'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { salesTrend, salesByCategory } from '../../mock-data/reports'
 // TODO: replace mock data with real API call to /api/v1/reports/sales
@@ -61,6 +62,17 @@ export default function SalesReportsTab() {
         </div>
       </div>
 
+      <div className="flex justify-end">
+        <ExportCsvButton
+          data={salesByCategory}
+          filename="sales-by-category"
+          columns={[
+            { label: 'Category', accessor: 'category' },
+            { label: 'Orders', accessor: 'orders' },
+            { label: 'Sales', accessor: (row) => `${symbol}${row.sales.toLocaleString()}` },
+          ]}
+        />
+      </div>
       <DataTable columns={columns} data={salesByCategory} pageSize={10} />
     </div>
   )

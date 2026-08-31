@@ -7,6 +7,8 @@ import FilterBar from '../../components/common/FilterBar'
 import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { customers as mockCustomers } from '../../mock-data/customers'
 // TODO: replace mock data with real API call to /api/v1/customers
@@ -71,29 +73,26 @@ export default function CustomerListPage() {
           const c = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
+              <IconActionButton
+                icon={Eye}
+                label="View"
+                variant="view"
                 onClick={() => navigate(`/customers/${c.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
+              />
               {c.status === 'Active' ? (
-                <button
+                <IconActionButton
+                  icon={Ban}
+                  label="Suspend"
+                  variant="suspend"
                   onClick={() => setConfirmTarget({ customer: c, action: 'suspend' })}
-                  className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                  title="Suspend"
-                >
-                  <Ban size={16} />
-                </button>
+                />
               ) : (
-                <button
+                <IconActionButton
+                  icon={CheckCircle2}
+                  label="Reactivate"
+                  variant="reactivate"
                   onClick={() => setConfirmTarget({ customer: c, action: 'reactivate' })}
-                  className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-success)]"
-                  title="Reactivate"
-                >
-                  <CheckCircle2 size={16} />
-                </button>
+                />
               )}
             </div>
           )
@@ -108,6 +107,20 @@ export default function CustomerListPage() {
       <PageHeader
         title="Customer Management"
         subtitle="View and manage registered marketplace customers"
+        actions={
+          <ExportCsvButton
+            data={filteredData}
+            filename="customers"
+            columns={[
+              { label: 'Name', accessor: 'name' },
+              { label: 'Mobile', accessor: 'mobile' },
+              { label: 'Email', accessor: 'email' },
+              { label: 'Registered Date', accessor: 'registeredDate' },
+              { label: 'Total Orders', accessor: 'totalOrders' },
+              { label: 'Status', accessor: 'status' },
+            ]}
+          />
+        }
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">

@@ -37,6 +37,7 @@ const navItems = [
   { to: '/faqs', label: 'FAQ Management', icon: HelpCircle },
   { to: '/enquiries', label: 'Contact Enquiries', icon: Mail },
   { to: '/profile', label: 'My Profile', icon: UserCircle },
+   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 function SidebarContent({ onNavigate, onCloseClick }) {

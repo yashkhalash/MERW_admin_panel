@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Truck, MapPin, History } from 'lucide-react'
+import { Truck, MapPin, History } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
+import Breadcrumbs from '../../components/common/Breadcrumbs'
 import StatusBadge from '../../components/common/StatusBadge'
 import ReassignCourierModal from './ReassignCourierModal'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
@@ -56,12 +57,13 @@ export default function OrderDetailPage() {
 
   return (
     <div>
-      <button
-        onClick={() => navigate('/orders')}
-        className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-3"
-      >
-        <ArrowLeft size={15} /> Back to Order Management
-      </button>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'Order Management', to: '/orders' },
+          { label: order.id },
+        ]}
+      />
 
       <PageHeader
         title={order.id}

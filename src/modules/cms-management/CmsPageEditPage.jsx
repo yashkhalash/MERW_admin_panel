@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  ArrowLeft,
   Save,
   Globe,
   Settings,
@@ -24,6 +23,7 @@ import {
 import { useCmsPages } from './CmsPagesContext'
 import { useToast } from '../../components/common/ToastContext'
 import Select from '../../components/common/Select'
+import Breadcrumbs from '../../components/common/Breadcrumbs'
 // TODO: replace mock data with real API call to /api/v1/cms/pages
 
 const FONT_FAMILIES = ['Default Font', 'Serif', 'Sans-serif', 'Monospace']
@@ -115,22 +115,22 @@ export default function CmsPageEditPage() {
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'CMS Management', to: '/cms' },
+          ...(isEdit && existingPage ? [{ label: existingPage.title, to: `/cms/${id}` }] : []),
+          { label: isEdit ? 'Edit Page' : 'Create Page' },
+        ]}
+      />
       <div className="flex items-start justify-between gap-4 mb-6">
-        <div className="flex items-start gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text)] hover:bg-[var(--color-bg)] shrink-0"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div>
-            <h1 className="text-xl font-semibold text-[var(--color-text)]">
-              {isEdit ? 'Edit CMS Page' : 'Create CMS Page'}
-            </h1>
-            <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
-              {isEdit ? 'Update this page\'s structure and content.' : 'Set up your new page structure'}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-xl font-semibold text-[var(--color-text)]">
+            {isEdit ? 'Edit CMS Page' : 'Create CMS Page'}
+          </h1>
+          <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
+            {isEdit ? 'Update this page\'s structure and content.' : 'Set up your new page structure'}
+          </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button

@@ -1,11 +1,18 @@
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
-export default function KpiCard({ label, value, delta, trend, icon: Icon, format }) {
+export default function KpiCard({ label, value, delta, trend, icon: Icon, format, to }) {
   const isUp = trend === 'up'
   const displayValue = format ? format(value) : value.toLocaleString()
+  const Wrapper = to ? Link : 'div'
 
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col gap-2">
+    <Wrapper
+      {...(to ? { to } : {})}
+      className={`bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col gap-2 ${
+        to ? 'transition-shadow hover:shadow-md hover:border-[var(--color-primary)]/40' : ''
+      }`}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-[var(--color-text-muted)]">{label}</span>
         {Icon && (
@@ -24,6 +31,6 @@ export default function KpiCard({ label, value, delta, trend, icon: Icon, format
         <span>{Math.abs(delta)}%</span>
         <span className="text-[var(--color-text-muted)] font-normal">vs last month</span>
       </div>
-    </div>
+    </Wrapper>
   )
 }

@@ -7,6 +7,9 @@ import FilterBar from '../../components/common/FilterBar'
 import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import ReassignCourierModal from './ReassignCourierModal'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
+import DateRangePicker from '../../components/common/DateRangePicker'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { useToast } from '../../components/common/ToastContext'
 import { orders as mockOrders } from '../../mock-data/orders'
@@ -19,6 +22,7 @@ export default function OrderListPage() {
   const [orders, setOrders] = useState(mockOrders)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState({ paymentStatus: '', fulfilmentStatus: '' })
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [reassignTarget, setReassignTarget] = useState(null)
 
   const filteredData = useMemo(() => {
@@ -30,9 +34,11 @@ export default function OrderListPage() {
         o.sellerName.toLowerCase().includes(search.toLowerCase())
       const matchesPayment = !filters.paymentStatus || o.paymentStatus === filters.paymentStatus
       const matchesFulfilment = !filters.fulfilmentStatus || o.fulfilmentStatus === filters.fulfilmentStatus
-      return matchesSearch && matchesPayment && matchesFulfilment
+      const matchesStart = !dateRange.start || o.orderDate >= dateRange.start
+      const matchesEnd = !dateRange.end || o.orderDate <= dateRange.end
+      return matchesSearch && matchesPayment && matchesFulfilment && matchesStart && matchesEnd
     })
-  }, [orders, search, filters])
+  }, [orders, search, filters, dateRange])
 
   const handleReassign = (courier, reason) => {
     setOrders((prev) =>
@@ -57,6 +63,7 @@ export default function OrderListPage() {
   const columns = useMemo(
     () => [
       { header: 'Order ID', accessorKey: 'id' },
+      { header: 'Date', accessorKey: 'orderDate' },
       { header: 'Customer', accessorKey: 'customerName' },
       { header: 'Seller', accessorKey: 'sellerName' },
       { header: 'Courier', accessorKey: 'courierName' },
@@ -84,21 +91,14 @@ export default function OrderListPage() {
           const canReassign = !['Delivered', 'Cancelled'].includes(o.fulfilmentStatus)
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/orders/${o.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/orders/${o.id}`)} />
               {canReassign && (
-                <button
+                <IconActionButton
+                  icon={Truck}
+                  label="Reassign Courier"
+                  variant="reassign"
                   onClick={() => setReassignTarget(o)}
-                  className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-                  title="Reassign Courier"
-                >
-                  <Truck size={16} />
-                </button>
+                />
               )}
             </div>
           )
@@ -110,9 +110,28 @@ export default function OrderListPage() {
 
   return (
     <div>
-      <PageHeader title="Order Management" subtitle="Track and manage all marketplace orders" />
+      <PageHeader
+        title="Order Management"
+        subtitle="Track and manage all marketplace orders"
+        actions={
+          <ExportCsvButton
+            data={filteredData}
+            filename="orders"
+            columns={[
+              { label: 'Order ID', accessor: 'id' },
+              { label: 'Date', accessor: 'orderDate' },
+              { label: 'Customer', accessor: 'customerName' },
+              { label: 'Seller', accessor: 'sellerName' },
+              { label: 'Courier', accessor: 'courierName' },
+              { label: 'Amount', accessor: (row) => `${symbol}${row.amount.toLocaleString()}` },
+              { label: 'Payment Status', accessor: 'paymentStatus' },
+              { label: 'Fulfilment Status', accessor: 'fulfilmentStatus' },
+            ]}
+          />
+        }
+      />
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 flex-wrap">
         <SearchBar value={search} onChange={setSearch} placeholder="Search by order ID, customer, seller..." />
         <FilterBar
           filters={[
@@ -129,6 +148,12 @@ export default function OrderListPage() {
           ]}
           values={filters}
           onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        />
+        <DateRangePicker
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onChange={setDateRange}
+          placeholder="Order date range"
         />
       </div>
 

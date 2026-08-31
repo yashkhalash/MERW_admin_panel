@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { marketplaceGrowth, avgOrderValue } from '../../mock-data/reports'
 // TODO: replace mock data with real API call to /api/v1/reports/marketplace-analytics
 
@@ -16,8 +17,29 @@ export default function MarketplaceAnalyticsTab() {
   const symbol = useCurrencySymbol()
   const latest = marketplaceGrowth[marketplaceGrowth.length - 1]
 
+  // marketplaceGrowth and avgOrderValue share the same `month` axis, so combine them
+  // into one row per month for a single, readable export.
+  const combined = marketplaceGrowth.map((row) => ({
+    ...row,
+    aov: avgOrderValue.find((a) => a.month === row.month)?.aov ?? '',
+  }))
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <ExportCsvButton
+          data={combined}
+          filename="marketplace-analytics"
+          columns={[
+            { label: 'Month', accessor: 'month' },
+            { label: 'Active Sellers', accessor: 'sellers' },
+            { label: 'Registered Customers', accessor: 'customers' },
+            { label: 'Monthly Orders', accessor: 'orders' },
+            { label: 'Average Order Value', accessor: (row) => `${symbol}${row.aov}` },
+          ]}
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
           <span className="text-xs font-medium text-[var(--color-text-muted)]">Active Sellers</span>

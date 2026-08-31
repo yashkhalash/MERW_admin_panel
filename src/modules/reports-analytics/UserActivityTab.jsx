@@ -13,6 +13,7 @@ import {
 import DataTable from '../../components/common/DataTable'
 import SearchBar from '../../components/common/SearchBar'
 import FilterBar from '../../components/common/FilterBar'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { userActivityTrend, userActivityLog } from '../../mock-data/reports'
 // TODO: replace mock data with real API call to /api/v1/reports/user-activity
 
@@ -69,6 +70,16 @@ export default function UserActivityTab() {
             ]}
             values={filters}
             onChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+          />
+          <ExportCsvButton
+            data={filteredLog}
+            filename="user-activity"
+            columns={[
+              { label: 'User', accessor: 'user' },
+              { label: 'Role', accessor: 'role' },
+              { label: 'Action', accessor: 'action' },
+              { label: 'Timestamp', accessor: 'timestamp' },
+            ]}
           />
         </div>
         <DataTable columns={columns} data={filteredLog} pageSize={10} />

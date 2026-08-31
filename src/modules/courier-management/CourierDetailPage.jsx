@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Ban, CheckCircle2, Pencil, Phone, Bike, MapPin } from 'lucide-react'
+import { Ban, CheckCircle2, Pencil, Phone, Bike, MapPin } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
+import Breadcrumbs from '../../components/common/Breadcrumbs'
 import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import CourierFormModal from './CourierFormModal'
@@ -57,12 +58,13 @@ export default function CourierDetailPage() {
 
   return (
     <div>
-      <button
-        onClick={() => navigate('/couriers')}
-        className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-3"
-      >
-        <ArrowLeft size={15} /> Back to Courier Management
-      </button>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', to: '/dashboard' },
+          { label: 'Courier Management', to: '/couriers' },
+          { label: courier.name },
+        ]}
+      />
 
       <PageHeader
         title={courier.name}

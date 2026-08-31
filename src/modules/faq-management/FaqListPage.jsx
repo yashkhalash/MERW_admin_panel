@@ -9,6 +9,8 @@ import StatusBadge from '../../components/common/StatusBadge'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import FaqFormModal from './FaqFormModal'
 import { useFaqs } from './FaqsContext'
+import IconActionButton from '../../components/common/IconActionButton'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useToast } from '../../components/common/ToastContext'
 import { FAQ_CATEGORIES } from '../../mock-data/faqs'
 // TODO: replace mock data with real API call to /api/v1/faqs
@@ -66,27 +68,9 @@ export default function FaqListPage() {
           const f = row.original
           return (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => navigate(`/faqs/${f.id}`)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-secondary)]"
-                title="View"
-              >
-                <Eye size={16} />
-              </button>
-              <button
-                onClick={() => setFormState({ faq: f })}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary-dark)]"
-                title="Edit"
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                onClick={() => setDeleteTarget(f)}
-                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
-                title="Delete"
-              >
-                <Trash2 size={16} />
-              </button>
+              <IconActionButton icon={Eye} label="View" variant="view" onClick={() => navigate(`/faqs/${f.id}`)} />
+              <IconActionButton icon={Pencil} label="Edit" variant="edit" onClick={() => setFormState({ faq: f })} />
+              <IconActionButton icon={Trash2} label="Delete" variant="delete" onClick={() => setDeleteTarget(f)} />
             </div>
           )
         },
@@ -101,12 +85,24 @@ export default function FaqListPage() {
         title="FAQ Management"
         subtitle="Manage frequently asked questions shown to customers and sellers"
         actions={
-          <button
-            onClick={() => setFormState({ faq: null })}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
-          >
-            <Plus size={15} /> Add FAQ
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton
+              data={filteredData}
+              filename="faqs"
+              columns={[
+                { label: 'Question', accessor: 'question' },
+                { label: 'Category', accessor: 'category' },
+                { label: 'Status', accessor: 'status' },
+                { label: 'Last Updated', accessor: 'updatedDate' },
+              ]}
+            />
+            <button
+              onClick={() => setFormState({ faq: null })}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md bg-[var(--color-primary)] text-white hover:opacity-90"
+            >
+              <Plus size={15} /> Add FAQ
+            </button>
+          </div>
         }
       />
 

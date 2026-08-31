@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import DataTable from '../../components/common/DataTable'
 import SearchBar from '../../components/common/SearchBar'
+import ExportCsvButton from '../../components/common/ExportCsvButton'
 import { useCurrencySymbol } from '../../theme/PlatformSettingsContext'
 import { productPerformance } from '../../mock-data/reports'
 // TODO: replace mock data with real API call to /api/v1/reports/product-performance
@@ -49,8 +50,19 @@ export default function ProductPerformanceTab() {
       </div>
 
       <div>
-        <div className="mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
           <SearchBar value={search} onChange={setSearch} placeholder="Search by product name..." />
+          <ExportCsvButton
+            data={filteredData}
+            filename="product-performance"
+            columns={[
+              { label: 'Product Name', accessor: 'name' },
+              { label: 'Category', accessor: 'category' },
+              { label: 'Units Sold', accessor: 'unitsSold' },
+              { label: 'Revenue', accessor: (row) => `${symbol}${row.revenue.toLocaleString()}` },
+              { label: 'Return Rate', accessor: (row) => `${row.returnRate}%` },
+            ]}
+          />
         </div>
         <DataTable columns={columns} data={filteredData} pageSize={10} />
       </div>
